@@ -8,6 +8,7 @@ BASE_API_URL = "https://api-churn-ia-fkeaczfhcdbycgfx.canadacentral-01.azurewebs
 
 PREDICT_URL = f"{BASE_API_URL}/predict"
 CHAT_URL = f"{BASE_API_URL}/chat"
+PRODUCTOS_URL = f"{BASE_API_URL}/productos"
 
 
 @app.route(route="evaluar_churn", methods=["POST"])
@@ -67,6 +68,27 @@ def chat_cliente(req: func.HttpRequest) -> func.HttpResponse:
         )
     except requests.RequestException as e:
         logging.error(f"Error llamando a la API de chat: {e}")
+        return func.HttpResponse("Error al conectar con la API", status_code=502)
+
+    return func.HttpResponse(
+        response.text,
+        status_code=response.status_code,
+        mimetype="application/json",
+    )
+
+
+@app.route(route="productos", methods=["GET"])
+def productos(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info("Consultando productos disponibles")
+
+    try:
+        response = requests.get(
+            PRODUCTOS_URL,
+            headers={"Content-Type": "application/json"},
+            timeout=30,
+        )
+    except requests.RequestException as e:
+        logging.error(f"Error llamando a la API de productos: {e}")
         return func.HttpResponse("Error al conectar con la API", status_code=502)
 
     return func.HttpResponse(
